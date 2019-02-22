@@ -24,6 +24,10 @@ func Test_Find(t *testing.T) {
 			},
 		},
 		{
+			input:    "hello \\$((who))",
+			expected: "hello $((who))",
+		},
+		{
 			input:    "hello {{who}}",
 			expected: "hello world",
 			values: map[string]interface{}{

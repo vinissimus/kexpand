@@ -179,10 +179,10 @@ func (c *ExpandCmd) DoExpand(src []byte, values map[string]interface{}) ([]byte,
 		var err error
 
 		// All
-		expr := `\$(\({1,2})([[:alnum:]_\.\-]+)(\|[[:alnum:]]+)?\){1,2}|(\{{2})([[:alnum:]_\.\-]+)(\|[[:alnum:]]+)?\}{2}`
+		expr := `(\\?)(?:\$(\({1,2})([[:alnum:]_\.\-]+)(\|[[:alnum:]]+)?\){1,2}|(\{{2})([[:alnum:]_\.\-]+)(\|[[:alnum:]]+)?\}{2})`
 		re := regexp.MustCompile(expr)
 		expandFunction := func(match []byte) []byte {
-			re := regexp.MustCompile(expr)
+			//re := regexp.MustCompile(expr)
 
 			matchStr := string(match[:])
 			result := re.FindStringSubmatch(matchStr)
@@ -191,12 +191,16 @@ func (c *ExpandCmd) DoExpand(src []byte, values map[string]interface{}) ([]byte,
 				glog.Fatalf("Unexpected match: %q", matchStr)
 			}
 
-			if result[2] == "" && result[5] == "" {
+			if result[3] == "" && result[6] == "" {
 				glog.Fatalf("No variable defined within: %q", matchStr)
 			}
 
-			key := result[2] + result[5]
+			key := result[3] + result[6]
 			replacement := values[key]
+
+			if result[1] == `\` {
+				return []byte(match[1:])
+			}
 
 			if replacement == nil {
 				if c.IgnoreMissingKeys == false {
@@ -205,7 +209,7 @@ func (c *ExpandCmd) DoExpand(src []byte, values map[string]interface{}) ([]byte,
 				return match
 			}
 
-			pipeFunction := result[3] + result[6]
+			pipeFunction := result[4] + result[7]
 			if pipeFunction != "" {
 				if pipeFunction == "|base64" {
 					b, ok := replacement.([]byte)
@@ -229,7 +233,7 @@ func (c *ExpandCmd) DoExpand(src []byte, values map[string]interface{}) ([]byte,
 			}
 
 			var s string
-			delim := result[1] + result[4]
+			delim := result[2] + result[5]
 			switch len(delim) {
 			case 1:
 				s = fmt.Sprintf("\"%v\"", replacement)

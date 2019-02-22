@@ -12,20 +12,20 @@ endif
 MAKEDIR:=$(strip $(shell dirname "$(realpath $(lastword $(MAKEFILE_LIST)))"))
 
 gocode:
-	GO15VENDOREXPERIMENT=1 go install -ldflags "-X main.BuildVersion=${VERSION}" github.com/kopeio/kexpand
+	GO15VENDOREXPERIMENT=1 go install -ldflags "-X main.BuildVersion=${VERSION}" github.com/vinissimus/kexpand
 
 gocode_docker:
-	GO15VENDOREXPERIMENT=1 CGO_ENABLED=0 GOOS=linux go install -ldflags "-s -X main.BuildVersion=${VERSION}" -a -installsuffix cgo github.com/kopeio/kexpand
+	GO15VENDOREXPERIMENT=1 CGO_ENABLED=0 GOOS=linux go install -ldflags "-s -X main.BuildVersion=${VERSION}" -a -installsuffix cgo github.com/vinissimus/kexpand
 
 crossbuild-in-docker:
 	docker pull golang:${GOVERSION} # Keep golang image up to date
-	docker run --name=kexpand-build-${UNIQUE} -e STATIC_BUILD=yes -e VERSION=${VERSION} -v ${MAKEDIR}:/go/src/github.com/kopeio/kexpand golang:${GOVERSION} make -f /go/src/github.com/kopeio/kexpand/Makefile crossbuild
+	docker run --name=kexpand-build-${UNIQUE} -e STATIC_BUILD=yes -e VERSION=${VERSION} -v ${MAKEDIR}:/go/src/github.com/vinissimus/kexpand golang:${GOVERSION} make -f /go/src/github.com/vinissimus/kexpand/Makefile crossbuild
 	docker cp kexpand-build-${UNIQUE}:/go/.build .
 
 crossbuild:
 	mkdir -p .build/dist/
-	GOOS=darwin GOARCH=amd64 go build -a ${EXTRA_BUILDFLAGS} -o .build/dist/darwin/amd64/kexpand -ldflags "${EXTRA_LDFLAGS} -X main.BuildVersion=${VERSION} -X main.GitVersion=${GITSHA}" github.com/kopeio/kexpand
-	GOOS=linux GOARCH=amd64 go build -a ${EXTRA_BUILDFLAGS} -o .build/dist/linux/amd64/kexpand -ldflags "${EXTRA_LDFLAGS} -X main.BuildVersion=${VERSION} -X main.GitVersion=${GITSHA}" github.com/kopeio/kexpand
+	GOOS=darwin GOARCH=amd64 go build -a ${EXTRA_BUILDFLAGS} -o .build/dist/darwin/amd64/kexpand -ldflags "${EXTRA_LDFLAGS} -X main.BuildVersion=${VERSION} -X main.GitVersion=${GITSHA}" github.com/vinissimus/kexpand
+	GOOS=linux GOARCH=amd64 go build -a ${EXTRA_BUILDFLAGS} -o .build/dist/linux/amd64/kexpand -ldflags "${EXTRA_LDFLAGS} -X main.BuildVersion=${VERSION} -X main.GitVersion=${GITSHA}" github.com/vinissimus/kexpand
 
 
 kexpand-dist: crossbuild-in-docker
@@ -58,8 +58,8 @@ ci: images test govet
 
 govet:
 	go vet \
-	  github.com/kopeio/kexpand/cmd/...
+	  github.com/vinissimus/kexpand/cmd/...
 
 test:
-	go test github.com/kopeio/kexpand/cmd/...
+	go test github.com/vinissimus/kexpand/cmd/...
 

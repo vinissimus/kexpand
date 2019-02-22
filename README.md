@@ -1,3 +1,7 @@
+Build: `CGO_ENABLED=0 go build -a ${EXTRA_BUILDFLAGS} -o kexpand -ldflags "-w -extldflags '-static' -X main.BuildVersion=0.3 -X main.GitVersion=${GITSHA}" github.com/kopeio/kexpand`
+
+(https://medium.com/@diogok/on-golang-static-binaries-cross-compiling-and-plugins-1aed33499671)
+
 ## Kexpand
 
 kexpand is a tool for expanding Kubernetes placeholder variables into their actual values.
@@ -112,8 +116,11 @@ not recommended for use.
 ## Variable names
 Variables names can include any alphanumeric character along with hypens(-), period(.), and underscores(_).
 
+## Escape variables
+Variables names starting with `\` will be ignored (`\$(HOME)` => `$(HOME)`)
+
 ## Multiple files
-kexpand supprts passing multiple files and wildcards for templates to specify multiple files at once. kexpand will add `---` 
+kexpand supprts passing multiple files and wildcards for templates to specify multiple files at once. kexpand will add `---`
 between each filename as required by kubectl.
 
 `kexpand *.tmpl.yaml -f values.yaml`
